@@ -1,12 +1,17 @@
-# lightcinema
-this is a smart contact for a cinema to watch movies and make payments with ether
-functions in the smartcontact
-set price of the token
-view the account token balance
-mint more token
-buy token buy the customer
-customer movie purchase
-abliity for customer to return token for ether
-addition of new movies
-removal of old movies
-ability of owner to withdraw ether from the contract
+# Light Cinema
+
+This smart contract lets users watch movies by purchasing the Movies (MC) token, which they can use to pay for movie cards.
+
+## Functionality
+
+The contract provides the following functionality:
+
+- Set the price of the MC token
+- View the account balance of every user
+- Mint more tokens if needed
+- Buy/Purchase MC tokens
+- Purchase movie cards with MC tokens
+- Return tokens and receive Ether
+- Create new movies
+- Remove old movies
+- Owner can withdraw the ether from the contract
