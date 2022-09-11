@@ -10,30 +10,30 @@ contract Cinema is ERC20, Ownable {
     // ============================================
 
     // Constructor
-    constructor () ERC20("Movies", "MC") {
+    constructor() ERC20("Movies", "MC") {
         _mint(address(this), 1000);
     }
 
     // Data structure to store customer data
     struct Customer {
         uint256 tokens_purchased;
-        string [] enjoyed_movies;
+        string[] enjoyed_movies;
     }
 
     // Mapping for customer registration
-    mapping (address => Customer) public Customers;
+    mapping(address => Customer) public Customers;
 
     // ============================================
     // Token Management
     // ============================================
 
     // Function to set the price of a Token
-    function priceTokens(uint256 _numTokens) internal pure returns (uint256){
+    function priceTokens(uint256 _numTokens) internal pure returns (uint256) {
         return _numTokens * (0.01 ether);
     }
 
     // Function to view the account token balance
-    function balanceTokens(address _acount) public view returns (uint256){
+    function balanceTokens(address _acount) public view returns (uint256) {
         return balanceOf(_acount);
     }
 
@@ -47,11 +47,13 @@ contract Cinema is ERC20, Ownable {
         // Set the price of the tokens
         uint256 cost = priceTokens(_numTokens);
         // The money that the customer pays for the tokens is evaluated
-        require(msg.value >= cost,
-            "Buy less tokens or pay with more ethers.");
+        require(msg.value >= cost, "Buy less tokens or pay with more ethers.");
         // Obtaining the number of tokens available from the Smart Contract
         uint256 balance = balanceTokens(address(this));
-        require(_numTokens <= balance, "Not enough tokens available. Please buy a smaller number of tokens.");
+        require(
+            _numTokens <= balance,
+            "Not enough tokens available. Please buy a smaller number of tokens."
+        );
         // The returnValue is defined as what the customer pays minus what the product is worth
         uint256 returnValue = msg.value - cost;
         // The company send the amount of ethers to the customer
@@ -65,12 +67,19 @@ contract Cinema is ERC20, Ownable {
     // Function for a customer to exchange tokens for ethers
     function tokensEthers(uint256 _numTokens) public payable {
         // Verify that the number of tokens is correct
-        require(_numTokens > 0,
-            "You need to input a positive amount of tokens.");
-        require(_numTokens <= balanceTokens(msg.sender),
-            "You do not have the tokens you wish to return.");
+        require(
+            _numTokens > 0,
+            "You need to input a positive amount of tokens."
+        );
+        require(
+            _numTokens <= balanceTokens(msg.sender),
+            "You do not have the tokens you wish to return."
+        );
         // Check if contract has enough ether
-        require(address(this).balance >= priceTokens(_numTokens), "Contract does not have enough ether");
+        require(
+            address(this).balance >= priceTokens(_numTokens),
+            "Contract does not have enough ether"
+        );
         // Step-1: Sending tokens to the Smart Contract
         _transfer(msg.sender, address(this), _numTokens);
         // Step-2: Sending ethers to the customer
@@ -82,7 +91,7 @@ contract Cinema is ERC20, Ownable {
     // ============================================
 
     // Events
-    event EnjoyMovie (string, uint256, address);
+    event EnjoyMovie(string, uint256, address);
     event NewMovie(string, uint256);
     event DeleteMovie(string);
 
@@ -97,12 +106,18 @@ contract Cinema is ERC20, Ownable {
     mapping(string => Movie) public MappingMovies;
 
     // Array for storing the name of the movies
-    string [] Movies;
+    string[] Movies;
 
     // Incorporate new movies into the Cinema
-    function newMovie (string memory _movie_name, uint256 _movie_price) public onlyOwner {
+    function newMovie(string memory _movie_name, uint256 _movie_price)
+        public
+        onlyOwner
+    {
         // Check if movie already exists
-        require(bytes(MappingMovies[_movie_name].movie_name).length == 0, "Movie with that name already exists");
+        require(
+            bytes(MappingMovies[_movie_name].movie_name).length == 0,
+            "Movie with that name already exists"
+        );
 
         // Creation of a new movie for the cinema
         MappingMovies[_movie_name] = Movie(_movie_name, _movie_price, true);
@@ -115,7 +130,10 @@ contract Cinema is ERC20, Ownable {
     // Function to remove a movie from the cinema
     function deleteMovie(string memory _movie_name) public onlyOwner {
         // Check if movie exists
-        require(bytes(MappingMovies[_movie_name].movie_name).length != 0, "Movie with that name does not exist");
+        require(
+            bytes(MappingMovies[_movie_name].movie_name).length != 0,
+            "Movie with that name does not exist"
+        );
 
         // Movie status is set to FALSE => Not available in the cinema
         MappingMovies[_movie_name].movie_status = false;
@@ -127,8 +145,8 @@ contract Cinema is ERC20, Ownable {
 
     // Remove movie from Movies array
     function _removeMovie(string memory _movie_name) private {
-        for (uint i = 0; i<Movies.length; i++){
-            if(keccak256(bytes(Movies[i])) == keccak256(bytes(_movie_name))) {
+        for (uint256 i = 0; i < Movies.length; i++) {
+            if (keccak256(bytes(Movies[i])) == keccak256(bytes(_movie_name))) {
                 delete Movies[i];
                 break;
             }
@@ -138,13 +156,17 @@ contract Cinema is ERC20, Ownable {
     // Function to watch a movie and pay tokens for it
     function watchMovie(string memory _movie_name) public {
         // Verify the status of the movie (if it is available for watching)
-        require(MappingMovies[_movie_name].movie_status == true,
-            "This is not available in this cinema.");
+        require(
+            MappingMovies[_movie_name].movie_status == true,
+            "This is not available in this cinema."
+        );
         // Price of the movie (in tokens)
         uint256 movie_tokens = MappingMovies[_movie_name].movie_price;
         // Verify the number of tokens the client has to watch the movie
-        require(movie_tokens <= balanceTokens(msg.sender),
-            "You need more tokens to watch this movie.");
+        require(
+            movie_tokens <= balanceTokens(msg.sender),
+            "You need more tokens to watch this movie."
+        );
         _transfer(msg.sender, address(this), movie_tokens);
         // Storage in the client's history of watched movies
         Customers[msg.sender].enjoyed_movies.push(_movie_name);
@@ -157,19 +179,22 @@ contract Cinema is ERC20, Ownable {
     // ============================================
 
     // Function to visualize the movie history
-    function movieHistory(address _account) public view returns (string [] memory) {
+    function movieHistory(address _account)
+        public
+        view
+        returns (string[] memory)
+    {
         return Customers[_account].enjoyed_movies;
     }
 
     // Function to visualize movies available in the cinema
-    function cinemaSchedule() public view returns (string [] memory){
+    function cinemaSchedule() public view returns (string[] memory) {
         return Movies;
     }
 
     // Extraction of ethers from the Smart Contract to the Owner
-    function withdraw() external payable onlyOwner{
+    function withdraw() external payable onlyOwner {
         address payable _owner = payable(owner());
         _owner.transfer(address(this).balance);
     }
-
 }
